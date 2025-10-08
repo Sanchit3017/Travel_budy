@@ -3,15 +3,13 @@ from datetime import datetime
 
 
 def process_travel_intake(user_input: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Process travel intake information and return confirmation
-    """
+    
     try:
         traveler_info = user_input.get('traveler', {})
         trip_info = user_input.get('trip', {})
         
-        # validate required fields
-        required_traveler = ['employee_id', 'name', 'email']
+       
+        required_traveler = ['user_id', 'name', 'email']
         required_trip = ['destination_country', 'destination_city', 'start_date', 'end_date', 'travel_mode']
         
         missing = []
@@ -29,10 +27,10 @@ def process_travel_intake(user_input: Dict[str, Any]) -> Dict[str, Any]:
                 'error': f"Missing required fields: {', '.join(missing)}"
             }
         
-        # validate date format
+      
         try:
-            start_dt = datetime.strptime(trip_info['start_date'], '%Y-%m-%d')
-            end_dt = datetime.strptime(trip_info['end_date'], '%Y-%m-%d')
+            start_dt = datetime.strptime(trip_info['start_date'], '%d-%m-%Y')
+            end_dt = datetime.strptime(trip_info['end_date'], '%d-%m-%Y')
             
             if end_dt < start_dt:
                 return {
@@ -49,7 +47,7 @@ def process_travel_intake(user_input: Dict[str, Any]) -> Dict[str, Any]:
         confirmation = {
             'success': True,
             'traveler': {
-                'employee_id': traveler_info['employee_id'],
+                'user_id': traveler_info['user_id'],
                 'name': traveler_info['name'],
                 'email': traveler_info['email'],
                 'phone': traveler_info.get('phone', 'Not provided'),
@@ -83,5 +81,6 @@ Your trip registration is complete."""
             'success': False,
             'error': f'Error processing travel intake: {str(e)}'
         }
+
 
 
