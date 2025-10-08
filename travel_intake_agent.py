@@ -1,10 +1,10 @@
 import json
 from typing import Dict, Any, Optional
 from datetime import datetime
-from .base_agent import BaseAgent
-from src.models.database import SessionLocal
-from src.models.traveler import Traveler
-from src.models.trip import Trip, TravelMode, TripStatus
+# from .base_agent import BaseAgent
+# from src.models.database import SessionLocal
+# from src.models.traveler import Traveler
+# from src.models.trip import Trip, TravelMode, TripStatus
 
 class TravelIntakeAgent(BaseAgent):
     def __init__(self):
@@ -114,4 +114,5 @@ Your trip is now being monitored for any potential risks or disruptions. You'll 
             self.log_activity(f"Database error: {str(e)}")
             raise
         finally:
+
             db.close()
