@@ -1,119 +1,87 @@
-import json
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from datetime import datetime
-# from .base_agent import BaseAgent
-# from src.models.database import SessionLocal
-# from src.models.traveler import Traveler
-# from src.models.trip import Trip, TravelMode, TripStatus
 
-# class TravelIntakeAgent(BaseAgent):
-#     def __init__(self):
-#         super().__init__(
-#             name="Travel Intake Agent",
-#             description="Captures and stores traveler information including destination, dates, and travel mode"
-#         )
-    
-#     async def process(self, user_input: str, session_id: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-#         self.log_activity(f"Processing travel intake request from session {session_id}")
+
+def process_travel_intake(user_input: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Process travel intake information and return confirmation
+    """
+    try:
+        traveler_info = user_input.get('traveler', {})
+        trip_info = user_input.get('trip', {})
         
-#         try:
-#             if context and context.get('action') == 'store_trip':
-#                 return await self.store_trip_data(context)
-#             else:
-#                 return {
-#                     'agent': self.name,
-#                     'message': self._generate_intake_prompt(),
-#                     'requires_input': True,
-#                     'next_action': 'store_trip'
-#                 }
-#         except Exception as e:
-#             self.log_activity(f"Error: {str(e)}")
-#             return {
-#                 'agent': self.name,
-#                 'error': str(e),
-#                 'message': "I encountered an error while processing your travel information. Please try again."
-#             }
-    
-    def _generate_intake_prompt(self) -> str:
-        return """Welcome to the Duty of Care Travel Assistant! I'll help you register your travel details.
-
-To properly monitor your trip for any potential issues, I need the following information:
-
-1. Your employee ID and name
-2. Email address for notifications
-3. Destination (country and city)
-4. Travel dates (start and end date)
-5. Mode of travel (flight, train, bus, car, etc.)
-6. Purpose of travel (optional)
-
-Please provide your travel details, and I'll register them in our system for monitoring."""
-    
-#     async def store_trip_data(self, trip_data: Dict[str, Any]) -> Dict[str, Any]:
-#         db = SessionLocal()
-#         try:
-#             traveler_data = trip_data.get('traveler', {})
-#             trip_info = trip_data.get('trip', {})
-            
-#             traveler = db.query(Traveler).filter_by(
-#                 employee_id=traveler_data.get('employee_id')
-#             ).first()
-            
-#             if not traveler:
-#                 traveler = Traveler(
-#                     employee_id=traveler_data.get('employee_id'),
-#                     name=traveler_data.get('name'),
-#                     email=traveler_data.get('email'),
-#                     phone=traveler_data.get('phone'),
-#                     company=traveler_data.get('company', 'Default Company'),
-#                     department=traveler_data.get('department')
-#                 )
-#                 db.add(traveler)
-#                 db.flush()
-#                 self.log_activity(f"Created new traveler: {traveler.name}")
-            
-#             travel_mode_str = trip_info.get('travel_mode', 'other').upper()
-#             try:
-#                 travel_mode = TravelMode[travel_mode_str]
-#             except KeyError:
-#                 travel_mode = TravelMode.OTHER
-            
-#             trip = Trip(
-#                 traveler_id=traveler.id,
-#                 destination=trip_info.get('destination'),
-#                 destination_country=trip_info.get('destination_country'),
-#                 destination_city=trip_info.get('destination_city'),
-#                 start_date=datetime.strptime(trip_info.get('start_date'), '%Y-%m-%d').date(),
-#                 end_date=datetime.strptime(trip_info.get('end_date'), '%Y-%m-%d').date(),
-#                 travel_mode=travel_mode,
-#                 status=TripStatus.PLANNED,
-#                 purpose=trip_info.get('purpose'),
-#                 notes=trip_info.get('notes')
-#             )
-#             db.add(trip)
-#             db.commit()
-            
-#             self.log_activity(f"Stored trip {trip.id} for traveler {traveler.name} to {trip.destination}")
-            
-#             return {
-#                 'agent': self.name,
-#                 'success': True,
-#                 'trip_id': trip.id,
-#                 'traveler_id': traveler.id,
-#                 'message': f"""Travel details successfully registered!
-
-# Traveler: {traveler.name} ({traveler.email})
-# Destination: {trip.destination_city}, {trip.destination_country}
-# Travel Dates: {trip.start_date} to {trip.end_date}
-# Mode of Travel: {trip.travel_mode.value}
-
-# Your trip is now being monitored for any potential risks or disruptions. You'll receive notifications if any issues are detected."""
-#             }
+        # validate required fields
+        required_traveler = ['employee_id', 'name', 'email']
+        required_trip = ['destination_country', 'destination_city', 'start_date', 'end_date', 'travel_mode']
         
-#         except Exception as e:
-#             db.rollback()
-#             self.log_activity(f"Database error: {str(e)}")
-#             raise
-#         finally:
+        missing = []
+        for field in required_traveler:
+            if not traveler_info.get(field):
+                missing.append(f'traveler.{field}')
+        
+        for field in required_trip:
+            if not trip_info.get(field):
+                missing.append(f'trip.{field}')
+        
+        if missing:
+            return {
+                'success': False,
+                'error': f"Missing required fields: {', '.join(missing)}"
+            }
+        
+        # validate date format
+        try:
+            start_dt = datetime.strptime(trip_info['start_date'], '%Y-%m-%d')
+            end_dt = datetime.strptime(trip_info['end_date'], '%Y-%m-%d')
+            
+            if end_dt < start_dt:
+                return {
+                    'success': False,
+                    'error': 'End date cannot be before start date'
+                }
+        except ValueError:
+            return {
+                'success': False,
+                'error': 'Invalid date format. Use YYYY-MM-DD'
+            }
+        
+        # build confirmation response
+        confirmation = {
+            'success': True,
+            'traveler': {
+                'employee_id': traveler_info['employee_id'],
+                'name': traveler_info['name'],
+                'email': traveler_info['email'],
+                'phone': traveler_info.get('phone', 'Not provided'),
+                'company': traveler_info.get('company', 'Not provided'),
+                'department': traveler_info.get('department', 'Not provided')
+            },
+            'trip': {
+                'destination': f"{trip_info['destination_city']}, {trip_info['destination_country']}",
+                'destination_city': trip_info['destination_city'],
+                'destination_country': trip_info['destination_country'],
+                'start_date': trip_info['start_date'],
+                'end_date': trip_info['end_date'],
+                'travel_mode': trip_info['travel_mode'],
+                'purpose': trip_info.get('purpose', 'Not specified'),
+                'notes': trip_info.get('notes', '')
+            },
+            'message': f"""Travel details confirmed!
 
-#             db.close()
+Traveler: {traveler_info['name']} ({traveler_info['email']})
+Destination: {trip_info['destination_city']}, {trip_info['destination_country']}
+Travel Dates: {trip_info['start_date']} to {trip_info['end_date']}
+Mode of Travel: {trip_info['travel_mode']}
+
+Your trip registration is complete."""
+        }
+        
+        return confirmation
+        
+    except Exception as e:
+        return {
+            'success': False,
+            'error': f'Error processing travel intake: {str(e)}'
+        }
+
 
