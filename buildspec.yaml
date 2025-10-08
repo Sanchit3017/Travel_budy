@@ -8,10 +8,11 @@ phases:
   build:
     commands:
       - echo Building the Docker image...
-      - docker build -t my-python-app .
-      - docker tag my-python-app:latest 605134457967.dkr.ecr.us-east-1.amazonaws.com/my-python-app:latest
+      - docker build -t agent_codes .
+      - docker tag my-python-app:latest 605134457967.dkr.ecr.us-east-1.amazonaws.com/agent_codes:latest
   post_build:
     commands:
       - echo Pushing the Docker image to ECR...
-      - docker push 605134457967.dkr.ecr.us-east-1.amazonaws.com/my-python-app:latest
+      - docker push 605134457967.dkr.ecr.us-east-1.amazonaws.com/agent_codes:latest
       - echo Build completed successfully.
+
