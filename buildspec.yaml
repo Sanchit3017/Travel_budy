@@ -8,12 +8,13 @@ phases:
   build:
     commands:
       - echo Building the Docker image...
-      - docker build -t agent_codes .
-      - docker tag myagent:latest 605134457967.dkr.ecr.us-east-1.amazonaws.com/agent_codes:latest
+      - docker build -t agent .
+      - docker tag agent:latest 605134457967.dkr.ecr.us-east-1.amazonaws.com/agent_codes:latest
   post_build:
     commands:
       - echo Pushing the Docker image to ECR...
       - docker push 605134457967.dkr.ecr.us-east-1.amazonaws.com/agent_codes:latest
       - echo Build completed successfully.
+
 
 
