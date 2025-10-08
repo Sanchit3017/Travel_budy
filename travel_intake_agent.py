@@ -43,7 +43,7 @@ def process_travel_intake(user_input: Dict[str, Any]) -> Dict[str, Any]:
                 'error': 'Invalid date format. Use YYYY-MM-DD'
             }
         
-        # build confirmation response
+        
         confirmation = {
             'success': True,
             'traveler': {
@@ -81,6 +81,7 @@ Your trip registration is complete."""
             'success': False,
             'error': f'Error processing travel intake: {str(e)}'
         }
+
 
 
 
