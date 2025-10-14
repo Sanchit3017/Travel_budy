@@ -1,9 +1,8 @@
-FROM --platform=linux/arm64 public.ecr.aws/amazonlinux/amazonlinux:2
-
+FROM --platform=linux/arm64 python:3.9-alpine
 
 
 # Install Python
-RUN yum install -y python3 python3-pip git && yum clean all
+
 
 
 # Set working directory
