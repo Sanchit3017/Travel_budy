@@ -1,20 +1,41 @@
 version: 0.2
 
+env:
+  variables:
+    AWS_REGION: "us-east-1"
+    ECR_REPO: "605134457967.dkr.ecr.us-east-1.amazonaws.com/agentcore-travel-runtime"
+
 phases:
+  install:
+    commands:
+      - echo "Installing Docker Buildx and dependencies..."
+      - yum update -y
+      - amazon-linux-extras install docker -y
+      - docker version
+      - docker buildx version || echo "Docker Buildx is already available"
+
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 605134457967.dkr.ecr.us-east-1.amazonaws.com
+      - echo "Logging in to Amazon ECR..."
+      - aws --version
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
+
   build:
     commands:
-      - echo Building the Docker image...
+      - echo "Building the Docker image for ARM64..."
+      # Create and use a buildx builder if not already available
+      - docker buildx create --use --name arm64builder || docker buildx use arm64builder
+      - docker buildx inspect --bootstrap
       - docker buildx build --platform linux/arm64 -t agentcore-travelruntime4 .
-      - docker tag agentcore-travelruntime4:latest 605134457967.dkr.ecr.us-east-1.amazonaws.com/agentcore-travel-runtime:latest
+      - docker tag agentcore-travelruntime4:latest $ECR_REPO:latest
+
   post_build:
     commands:
-      - echo Pushing the Docker image to ECR...
-      - docker push 605134457967.dkr.ecr.us-east-1.amazonaws.com/agentcore-travel-runtime:latest
-      - echo Build completed successfully.
+      - echo "Pushing the Docker image to ECR..."
+      - docker push $ECR_REPO:latest
+      - echo "✅ Build and push completed successfully for ARM64 image."
+
+
 
 
 
