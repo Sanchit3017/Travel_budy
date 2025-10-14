@@ -8,13 +8,14 @@ phases:
   build:
     commands:
       - echo Building the Docker image...
-      - docker build --platform linux/arm64 -t agentcore-travelruntime4 .
+      - docker buildx build --platform linux/arm64 -t agentcore-travelruntime4 .
       - docker tag agentcore-travelruntime4:latest 605134457967.dkr.ecr.us-east-1.amazonaws.com/agentcore-travel-runtime:latest
   post_build:
     commands:
       - echo Pushing the Docker image to ECR...
       - docker push 605134457967.dkr.ecr.us-east-1.amazonaws.com/agentcore-travel-runtime:latest
       - echo Build completed successfully.
+
 
 
 
