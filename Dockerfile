@@ -1,4 +1,4 @@
-FROM --platform=linux/arm64 public.ecr.aws/amazonlinux/amazonlinux:2023
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 
 # Install Python
 RUN dnf install -y python3 python3-pip git
@@ -10,7 +10,7 @@ WORKDIR /app
 COPY . .
 
 # Install dependencies
-RUN pip install boto3 requests agentcore-sdk
+RUN pip install boto3 requests
 
 # Expose port
 EXPOSE 8080
