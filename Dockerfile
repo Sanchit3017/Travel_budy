@@ -1,4 +1,5 @@
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023
+FROM --platform=linux/arm64 public.ecr.aws/amazonlinux/amazonlinux:2023-arm64
+
 
 # Install Python
 RUN dnf install -y python3 python3-pip git
