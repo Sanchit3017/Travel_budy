@@ -1,14 +1,19 @@
-# Use the official Python base image
-FROM python:3.10-slim
+FROM --platform=linux/arm64 public.ecr.aws/amazonlinux/amazonlinux:2023
+
+# Install Python
+RUN dnf install -y python3 python3-pip git
 
 # Set working directory
 WORKDIR /app
 
-# Copy all files to the container
-COPY . /app
+# Copy code
+COPY . .
 
-# Install dependencies (if requirements.txt exists)
+# Install dependencies
+RUN pip install boto3 requests agentcore-sdk
 
+# Expose port
+EXPOSE 8080
 
-# Run your Python file
-CMD ["python", "travel_intake_agent.py"]
+# Command to start agentcore runtime
+CMD ["python3", "main.py"]
