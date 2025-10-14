@@ -1,8 +1,10 @@
-FROM --platform=linux/arm64 public.ecr.aws/amazonlinux/amazonlinux:2023-arm64
+FROM --platform=linux/arm64 public.ecr.aws/amazonlinux/amazonlinux:2
+
 
 
 # Install Python
-RUN dnf install -y python3 python3-pip git
+RUN yum install -y python3 python3-pip git && yum clean all
+
 
 # Set working directory
 WORKDIR /app
