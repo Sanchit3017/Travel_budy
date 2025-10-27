@@ -28,7 +28,7 @@ phases:
       # Create and use a buildx builder if not already available
       - docker buildx create --use --name arm64builder || docker buildx use arm64builder
       - docker buildx inspect --bootstrap
-      - docker buildx build --platform linux/arm64 -t agentcore-travelruntime4 .
+      - docker buildx build --platform linux/arm64 -t agentcore-travelruntime4:latest --load
       - docker tag agentcore-travelruntime4:latest $ECR_REPO:latest
 
   post_build:
@@ -36,6 +36,7 @@ phases:
       - echo "Pushing the Docker image to ECR..."
       - docker push $ECR_REPO:latest
       - echo "✅ Build and push completed successfully for ARM64 image."
+
 
 
 
