@@ -10,7 +10,7 @@ WORKDIR /app
 COPY . .
 
 
-RUN pip install boto3 requests
+RUN pip install boto3 requests agentcore
 
 
 CMD ["python3", "main.py"]
