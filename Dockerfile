@@ -13,5 +13,5 @@ COPY . .
 RUN pip install boto3 requests
 
 
-CMD ["python3", "app.py"]
+CMD ["python3", "main.py"]
 
